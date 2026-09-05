@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Качество ароматов</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Golos+Text:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#EEF1EE; --surface:#FFFFFF; --ink:#16211C; --muted:#5E6B64;
+  --line:#D3DBD5; --accent:#12614F; --accent-ink:#FFFFFF; --soft:#DFEAE4;
+  --shadow:0 1px 2px rgba(22,33,28,.07),0 8px 24px rgba(22,33,28,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0F1512; --surface:#19211D; --ink:#EAF1EC; --muted:#9AAAA1;
+  --line:#2C3833; --accent:#5FC6A5; --accent-ink:#0C1512; --soft:#243029;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+}}
+:root[data-theme="dark"]{
+  --ground:#0F1512; --surface:#19211D; --ink:#EAF1EC; --muted:#9AAAA1;
+  --line:#2C3833; --accent:#5FC6A5; --accent-ink:#0C1512; --soft:#243029;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+img{max-width:100%}
+body{background:var(--ground);color:var(--ink);
+  font-family:"Golos Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:18px;line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:18px 16px 44px;display:flex;flex-direction:column;gap:18px;min-height:100vh}
+.bar{display:flex;flex-direction:column;gap:8px}
+.bar-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.bar-title{font-size:15px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.bar-count{font-size:15px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.track{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.fill{height:100%;background:var(--accent);border-radius:99px;transition:width .25s ease}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px 22px;box-shadow:var(--shadow);text-align:center}
+.eyebrow{font-size:14px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.brand{font-family:"Bitter",Georgia,serif;font-weight:700;font-size:40px;line-height:1.1;margin:0;text-wrap:balance;word-break:break-word}
+.sub{margin:12px 0 0;color:var(--muted);font-size:17px}
+.model{font-size:24px;font-weight:600;margin:8px 0 0;line-height:1.25}
+.q{text-align:center;font-size:20px;font-weight:600;margin:0}
+.opts{display:flex;flex-direction:column;gap:10px}
+button{font:inherit;cursor:pointer;border-radius:14px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);min-height:64px;padding:14px 18px;
+  font-size:21px;font-weight:600;transition:transform .08s ease,background .15s ease;text-align:left;
+  display:flex;align-items:center;gap:14px;width:100%}
+button:hover{background:var(--soft)}
+button:active{transform:scale(.985)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tag{display:inline-flex;align-items:center;justify-content:center;min-width:74px;height:38px;padding:0 12px;
+  border-radius:9px;background:var(--accent);color:var(--accent-ink);font-size:17px;font-weight:700;flex:none}
+.tag.n{background:var(--soft);color:var(--muted)}
+.hint{font-size:15px;font-weight:400;color:var(--muted)}
+.foot{display:flex;gap:10px;margin-top:2px}
+.foot button{min-height:52px;font-size:17px;justify-content:center;text-align:center;background:transparent;color:var(--muted)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);
+  justify-content:center;text-align:center;font-size:20px;margin-top:14px}
+.done{text-align:center;padding:40px 22px}
+.done h2{font-family:"Bitter",Georgia,serif;font-size:32px;margin:0 0 12px}
+.saved{text-align:center;font-size:14px;color:var(--muted);min-height:20px}
+.note{font-size:15px;color:var(--muted);text-align:center;margin:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="bar-top">
+      <span class="bar-title">Качество ароматов</span>
+      <span class="bar-count" id="count"></span>
+    </div>
+    <div class="track"><div class="fill" id="fill" style="width:0%"></div></div>
+  </div>
+  <div id="screen"></div>
+  <div class="saved" id="saved"></div>
+</div>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
