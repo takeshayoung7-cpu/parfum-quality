@@ -183,6 +183,10 @@ function render(){
     b1.textContent = "← Изменить последний ответ";
     b1.addEventListener("click", back);
     f.appendChild(b1);
+    const b2 = document.createElement("button");
+    b2.textContent = "Начать заново";
+    b2.addEventListener("click", resetAll);
+    f.appendChild(b2);
     $screen.appendChild(f);
 
     if(!sentOnce) deliver();
@@ -239,6 +243,15 @@ function render(){
   $screen.appendChild(foot);
 }
 
+function resetAll(){
+  if(!confirm("Стереть все ответы и начать опрос заново?")) return;
+  try{ localStorage.removeItem("pg_quality"); }catch(e){}
+  answers = {}; history = []; pos = 0; sentOnce = false;
+  queue = DATA.map(function(b, i){ return {type:"brand", bi:i}; });
+  render();
+  window.scrollTo(0, 0);
+}
+
 function restore(saved){
   if(!saved || !saved.answers) return;
   answers = saved.answers;
@@ -262,7 +275,11 @@ fetch("brands.json")
   .then(function(json){
     DATA = json;
     queue = DATA.map(function(b, i){ return {type:"brand", bi:i}; });
-    try{ restore(JSON.parse(localStorage.getItem("pg_quality"))); }catch(e){}
+    if(/(^|[?&])reset\b/.test(location.search)){
+      try{ localStorage.removeItem("pg_quality"); }catch(e){}
+    }else{
+      try{ restore(JSON.parse(localStorage.getItem("pg_quality"))); }catch(e){}
+    }
     render();
   })
   .catch(function(){
