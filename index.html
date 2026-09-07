@@ -67,9 +67,12 @@ button.primary{background:var(--accent);color:var(--accent-ink);border-color:var
 .stage.enter{transform:translateX(26px);opacity:0}
 .qnum{margin:0;text-align:center;font-size:16px;font-weight:700;letter-spacing:.04em;
   color:var(--accent);font-variant-numeric:tabular-nums}
-button.chosen{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-button.chosen .tag{background:var(--accent-ink);color:var(--accent)}
-button.chosen .hint{color:var(--accent-ink);opacity:.85}
+.multi{margin:0;text-align:center;font-size:16px;color:var(--muted)}
+button.opt{justify-content:center;text-align:center;font-size:24px;font-weight:700;
+  letter-spacing:.02em;min-height:68px;position:relative}
+button.opt.chosen{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.opt.chosen::after{content:"✓";position:absolute;right:20px;font-size:24px}
+button.primary:disabled{background:var(--line);border-color:var(--line);color:var(--muted);cursor:default}
 .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);
   background:var(--ink);color:var(--ground);padding:13px 22px;border-radius:99px;
   font-size:17px;font-weight:700;opacity:0;pointer-events:none;z-index:50;
@@ -91,7 +94,7 @@ button.chosen .hint{color:var(--accent-ink);opacity:.85}
   <div id="screen"></div>
   <div class="saved" id="saved"></div>
 </div>
-<script src="config.js?v=3"></script>
-<script src="app.js?v=3"></script>
+<script src="config.js?v=4"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>

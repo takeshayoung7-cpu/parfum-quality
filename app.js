@@ -1,14 +1,4 @@
-const OPTS = [
-  {k:"ЕВРО",  t:"ЕВРО",  d:"базовое качество"},
-  {k:"А+",    t:"А+",    d:"высокое"},
-  {k:"ЛЮКС",  t:"ЛЮКС",  d:"самое высокое"},
-  {k:"VIP",   t:"VIP",   d:"отдельная категория"},
-  {k:"КОПИЯ", t:"КОПИЯ", d:"дорогая копия"}
-];
-const EXTRA = [
-  {k:"РАЗНЫЕ",  t:"Разные",  d:"внутри бренда качество отличается", n:true},
-  {k:"НЕ ЗНАЮ", t:"Не знаю", d:"пропустить и вернуться позже",      n:true}
-];
+const OPTS = ["ЕВРО", "А+", "ЛЮКС", "VIP", "КОПИЯ"];
 
 let DATA = [];
 let queue = [];
@@ -39,13 +29,9 @@ function keyOf(q){
 function answer(key, val){
   history.push({key:key, pos:pos, queueLen:queue.length});
   answers[key] = val;
-  if(val === "РАЗНЫЕ"){
-    const q = queue[pos];
-    const subs = DATA[q.bi].items.map(function(_, ii){ return {type:"item", bi:q.bi, ii:ii}; });
-    queue.splice.apply(queue, [pos+1, 0].concat(subs));
-  }
   pos++;
   save();
+  if(pos % 20 === 0) send("ПРОМЕЖУТОЧНО (" + pos + " из " + queue.length + ")\n\n" + summary()).catch(function(){});
   render();
 }
 
@@ -116,18 +102,6 @@ async function deliver(){
   if(btn) btn.style.display = "flex";
 }
 
-async function deliverPartial(btn){
-  const label = btn.textContent;
-  btn.textContent = "Отправляем…";
-  try{
-    await send("ЧАСТИЧНО ЗАПОЛНЕНО (" + Object.keys(answers).length + " из " + queue.length + ")\n\n" + summary());
-    btn.textContent = "Отправлено";
-  }catch(e){
-    btn.textContent = "Ошибка сети";
-  }
-  setTimeout(function(){ btn.textContent = label; }, 2500);
-}
-
 let locked = false;
 
 function toast(text){
@@ -145,28 +119,7 @@ function toast(text){
   toast._t = setTimeout(function(){ t.classList.remove("show"); }, 1400);
 }
 
-function optButton(o, key){
-  const btn = document.createElement("button");
-  const tag = document.createElement("span");
-  tag.className = "tag" + (o.n ? " n" : "");
-  tag.textContent = o.t;
-  const hint = document.createElement("span");
-  hint.className = "hint";
-  hint.textContent = o.d;
-  btn.appendChild(tag);
-  btn.appendChild(hint);
-  btn.addEventListener("click", function(){
-    if(locked) return;
-    locked = true;
-    btn.classList.add("chosen");
-    toast("Записано: " + o.t);
-    setTimeout(function(){
-      locked = false;
-      answer(key, o.k);
-    }, 260);
-  });
-  return btn;
-}
+let picked = [];
 
 function render(){
   const total = queue.length;
@@ -250,14 +203,42 @@ function render(){
   qq.textContent = "Какое качество?";
   stage.appendChild(qq);
 
+  const hint = document.createElement("p");
+  hint.className = "multi";
+  hint.textContent = "Если качеств несколько — отметьте все подходящие";
+  stage.appendChild(hint);
+
+  picked = [];
+  const next = document.createElement("button");
+
   const opts = document.createElement("div");
   opts.className = "opts";
-  OPTS.forEach(function(o){ opts.appendChild(optButton(o, key)); });
-  if(q.type === "brand" && brand.items.length > 1) opts.appendChild(optButton(EXTRA[0], key));
-  opts.appendChild(optButton(EXTRA[1], key));
+  OPTS.forEach(function(name){
+    const btn = document.createElement("button");
+    btn.className = "opt";
+    btn.textContent = name;
+    btn.addEventListener("click", function(){
+      const i = picked.indexOf(name);
+      if(i < 0){ picked.push(name); btn.classList.add("chosen"); }
+      else { picked.splice(i, 1); btn.classList.remove("chosen"); }
+      next.disabled = picked.length === 0;
+      next.textContent = picked.length ? "Далее →" : "Выберите качество";
+    });
+    opts.appendChild(btn);
+  });
   stage.appendChild(opts);
 
-  requestAnimationFrame(function(){ stage.classList.remove("enter"); });
+  next.className = "primary";
+  next.textContent = "Выберите качество";
+  next.disabled = true;
+  next.addEventListener("click", function(){
+    if(locked || !picked.length) return;
+    locked = true;
+    const val = picked.join(" + ");
+    toast("Записано: " + val);
+    setTimeout(function(){ locked = false; answer(key, val); }, 240);
+  });
+  stage.appendChild(next);
 
   const foot = document.createElement("div");
   foot.className = "foot";
@@ -267,13 +248,14 @@ function render(){
   bBack.style.opacity = history.length ? "1" : ".4";
   bBack.addEventListener("click", back);
   foot.appendChild(bBack);
-  if(Object.keys(answers).length >= 5){
-    const bSend = document.createElement("button");
-    bSend.textContent = "Отправить готовое";
-    bSend.addEventListener("click", function(){ deliverPartial(bSend); });
-    foot.appendChild(bSend);
-  }
-  $screen.appendChild(foot);
+  const bSkip = document.createElement("button");
+  bSkip.textContent = "Не знаю";
+  bSkip.addEventListener("click", function(){ answer(key, "НЕ ЗНАЮ"); });
+  foot.appendChild(bSkip);
+  stage.appendChild(foot);
+
+  requestAnimationFrame(function(){ stage.classList.remove("enter"); });
+
 }
 
 function resetAll(){
@@ -303,7 +285,7 @@ function restore(saved){
   }
 }
 
-fetch("brands.json?v=3")
+fetch("brands.json?v=4")
   .then(function(r){ return r.json(); })
   .then(function(json){
     DATA = json;
