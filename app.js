@@ -132,6 +132,23 @@ async function deliverPartial(btn){
   setTimeout(function(){ btn.textContent = label; }, 2500);
 }
 
+let locked = false;
+
+function toast(text){
+  let t = document.getElementById("toast");
+  if(!t){
+    t = document.createElement("div");
+    t.id = "toast"; t.className = "toast";
+    document.body.appendChild(t);
+  }
+  t.textContent = text;
+  t.classList.remove("show");
+  void t.offsetWidth;
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ t.classList.remove("show"); }, 1400);
+}
+
 function optButton(o, key){
   const btn = document.createElement("button");
   const tag = document.createElement("span");
@@ -142,7 +159,16 @@ function optButton(o, key){
   hint.textContent = o.d;
   btn.appendChild(tag);
   btn.appendChild(hint);
-  btn.addEventListener("click", function(){ answer(key, o.k); });
+  btn.addEventListener("click", function(){
+    if(locked) return;
+    locked = true;
+    btn.classList.add("chosen");
+    toast("Записано: " + o.t);
+    setTimeout(function(){
+      locked = false;
+      answer(key, o.k);
+    }, 260);
+  });
   return btn;
 }
 
@@ -197,6 +223,15 @@ function render(){
   const brand = DATA[q.bi];
   const key = keyOf(q);
 
+  const stage = document.createElement("div");
+  stage.className = "stage enter";
+  $screen.appendChild(stage);
+
+  const num = document.createElement("p");
+  num.className = "qnum";
+  num.textContent = "Вопрос " + (pos + 1) + " из " + total;
+  stage.appendChild(num);
+
   const card = document.createElement("div");
   card.className = "card";
   if(q.type === "brand"){
@@ -212,19 +247,21 @@ function render(){
     const sub = document.createElement("p"); sub.className = "sub"; sub.textContent = it.v || "";
     card.appendChild(eb); card.appendChild(md); card.appendChild(sub);
   }
-  $screen.appendChild(card);
+  stage.appendChild(card);
 
   const qq = document.createElement("p");
   qq.className = "q";
   qq.textContent = "Какое качество?";
-  $screen.appendChild(qq);
+  stage.appendChild(qq);
 
   const opts = document.createElement("div");
   opts.className = "opts";
   OPTS.forEach(function(o){ opts.appendChild(optButton(o, key)); });
   if(q.type === "brand" && brand.items.length > 1) opts.appendChild(optButton(EXTRA[0], key));
   opts.appendChild(optButton(EXTRA[1], key));
-  $screen.appendChild(opts);
+  stage.appendChild(opts);
+
+  requestAnimationFrame(function(){ stage.classList.remove("enter"); });
 
   const foot = document.createElement("div");
   foot.className = "foot";

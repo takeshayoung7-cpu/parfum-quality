@@ -60,7 +60,23 @@ button.primary{background:var(--accent);color:var(--accent-ink);border-color:var
 .done h2{font-family:"Bitter",Georgia,serif;font-size:32px;margin:0 0 12px}
 .saved{text-align:center;font-size:14px;color:var(--muted);min-height:20px}
 .note{font-size:15px;color:var(--muted);text-align:center;margin:0}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* смена вопроса должна быть видна */
+.stage{display:flex;flex-direction:column;gap:18px;
+  transition:transform .26s cubic-bezier(.2,.7,.3,1),opacity .26s ease}
+.stage.enter{transform:translateX(26px);opacity:0}
+.qnum{margin:0;text-align:center;font-size:16px;font-weight:700;letter-spacing:.04em;
+  color:var(--accent);font-variant-numeric:tabular-nums}
+button.chosen{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.chosen .tag{background:var(--accent-ink);color:var(--accent)}
+button.chosen .hint{color:var(--accent-ink);opacity:.85}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);
+  background:var(--ink);color:var(--ground);padding:13px 22px;border-radius:99px;
+  font-size:17px;font-weight:700;opacity:0;pointer-events:none;z-index:50;
+  transition:opacity .18s ease,transform .18s ease;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.stage.enter{opacity:1;transform:none}}
 </style>
 </head>
 <body>
