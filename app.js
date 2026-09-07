@@ -292,7 +292,7 @@ function restore(saved){
   }
 }
 
-fetch("brands.json")
+fetch("brands.json?v=2")
   .then(function(r){ return r.json(); })
   .then(function(json){
     DATA = json;
