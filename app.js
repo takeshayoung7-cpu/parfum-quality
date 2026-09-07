@@ -81,28 +81,13 @@ function summary(){
   return out.trim();
 }
 
-function chunks(text){
-  const parts = [];
-  let cur = "";
-  text.split("\n").forEach(function(line){
-    if((cur + line).length > 3200){ parts.push(cur); cur = ""; }
-    cur += line + "\n";
-  });
-  if(cur.trim()) parts.push(cur);
-  return parts;
-}
-
 async function send(text){
   const cfg = window.PG_CONFIG;
-  const parts = chunks(text);
-  for(let i = 0; i < parts.length; i++){
-    const r = await fetch("https://api.telegram.org/bot" + cfg.bot + "/sendMessage", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({chat_id: cfg.chat, text: parts[i]})
-    });
-    if(!r.ok) throw new Error("http " + r.status);
-  }
+  const body = new FormData();
+  body.append(cfg.field, text);
+  // Google Форма не отдаёт CORS-заголовки: ответ прочитать нельзя,
+  // но запрос доходит. Ошибка сети здесь — единственный реальный сбой.
+  await fetch(cfg.formAction, {method: "POST", mode: "no-cors", body: body});
 }
 
 async function deliver(){
@@ -124,7 +109,7 @@ async function deliverPartial(btn){
   const label = btn.textContent;
   btn.textContent = "Отправляем…";
   try{
-    await send("ЧАСТИЧНО ЗАПОЛНЕНО\n\n" + summary());
+    await send("ЧАСТИЧНО ЗАПОЛНЕНО (" + Object.keys(answers).length + " из " + queue.length + ")\n\n" + summary());
     btn.textContent = "Отправлено";
   }catch(e){
     btn.textContent = "Ошибка сети";
