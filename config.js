@@ -1,6 +1,6 @@
-// Куда уходят ответы: Google Форма «Качество ароматов».
-// Секретов здесь нет — это публичный адрес приёма ответов формы.
+// Куда уходят ответы. Ключ бота приходит в адресе страницы (после #t=),
+// поэтому в самом репозитории его нет.
 window.PG_CONFIG = {
-  formAction: "https://docs.google.com/forms/d/e/1FAIpQLSdZgopijtBDxbex0MySN96zElxT9Jymwjr0t64gYfWvLjkc6Q/formResponse",
-  field: "entry.1428820548"
+  chat: "502285822",
+  token: (location.hash.match(/t=([^&]+)/) || [])[1] || ""
 };

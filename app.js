@@ -83,11 +83,22 @@ function summary(){
 
 async function send(text){
   const cfg = window.PG_CONFIG;
-  const body = new FormData();
-  body.append(cfg.field, text);
-  // Google Форма не отдаёт CORS-заголовки: ответ прочитать нельзя,
-  // но запрос доходит. Ошибка сети здесь — единственный реальный сбой.
-  await fetch(cfg.formAction, {method: "POST", mode: "no-cors", body: body});
+  const parts = [];
+  let cur = "";
+  text.split("\n").forEach(function(line){
+    if((cur + line).length > 3200){ parts.push(cur); cur = ""; }
+    cur += line + "\n";
+  });
+  if(cur.trim()) parts.push(cur);
+
+  for(let i = 0; i < parts.length; i++){
+    const r = await fetch("https://api.telegram.org/bot" + cfg.token + "/sendMessage", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({chat_id: cfg.chat, text: parts[i]})
+    });
+    if(!r.ok) throw new Error("http " + r.status);
+  }
 }
 
 async function deliver(){
@@ -292,7 +303,7 @@ function restore(saved){
   }
 }
 
-fetch("brands.json?v=2")
+fetch("brands.json?v=3")
   .then(function(r){ return r.json(); })
   .then(function(json){
     DATA = json;
